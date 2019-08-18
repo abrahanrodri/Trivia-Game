@@ -104,7 +104,7 @@ var myQuestions = [
 var counter = 120;
 var interval = setInterval(function() {
     counter--;
-    if (counter <= 0) {
+    if (counter === 0) {
      		clearInterval(interval);
       	$('#timer').html("<h3>GAME OVER!</h2>");  
         return;
@@ -113,81 +113,60 @@ var interval = setInterval(function() {
     }
 }, 1000);
 
-function generateQuiz(questions, quizContainer, resultsContainer, submitButton) {
+function generateQuiz(questions, quizContainer, resultsContainer, submitButton){
 
-  function showQuestions(questions, quizContainer) {
-    var output = [];
-    var choices;
+	function showQuestions(questions, quizContainer){
+	var output = [];
+	var choices;
 
-    for (var i = 0; i < questions.length; i++) {
-      choices = [];
+	for(var i=0; i<questions.length; i++){
+				choices = [];
 
-      for (let letter in questions[i].choices) {
-        choices.push(
-          '<label>' +
-          '<input type="radio" name="question' + i + '" value="' + letter + '">' +
-          letter + ': ' +
-          questions[i].choices[letter] +
-          '</label>'
-        );
-      }
+		for(letter in questions[i].choices){
+			choices.push(
+				'<label>'
+					+ '<input type="radio" name="question'+i+'" value="'+letter+'">'
+					+ letter + ': '
+					+ questions[i].choices[letter]
+				+ '</label>'
+			);
+		}
+ 
+    output.push(
+			'<div class="question">' + questions[i].question + '</div>'
+			+ '<div class="choices">' + choices.join('') + '</div>'
+		);
+	}
+	quizContainer.innerHTML = output.join('');
+	}
 
-      output.push(
-          '<div class="question">' + questions[i].question + '</div>' +
-          '<div class="choices">' + choices.join('') + '</div>'
-        );
-      }
+	function showResults(questions, quizContainer, resultsContainer){
+  var answerContainers = quizContainer.querySelectorAll('.choices');
+	var userAnswer = '';
+	var numCorrect = 0;
+	
+	for(var i=0; i<questions.length; i++){
 
+		userAnswer = (answerContainers[i].querySelector('input[name=question'+i+']:checked')||{}).value;
+		
+		if(userAnswer===questions[i].answer){
+			numCorrect++;
+    			}
+	}
 
-      quizContainer.innerHTML = output.join('');
-    }
+  resultsContainer.innerHTML = numCorrect + ' out of ' + questions.length;
+  
+}
 
+	showQuestions(questions, quizContainer);
 
+	submitButton.onclick = function(){
+		showResults(questions, quizContainer, resultsContainer);
+	}
+}
 
+var quizContainer = document.getElementById('quiz');
+var resultsContainer = document.getElementById('results');
+var submitButton = document.getElementById('submit');
 
-
-    function showResults(questions, quizContainer, resultsContainer) {
-
-
-      var answerContainers = quizContainer.querySelectorAll('.choices');
-
-
-      var userAnswer = '';
-      var numCorrect = 0;
-
-      for (var i = 0; i < questions.length; i++) {
-
-
-        userAnswer = (answerContainers[i].querySelector('input[name=question' + i + ']:checked') || {}).value;
-
-
-        if (userAnswer === questions[i].answer) {
-
-          numCorrect++;
-          answerContainers[i].style.color = 'lightgreen';
-        } else {
-          answerContainers[i].style.color = 'red';
-        }
-      }
-
-
-      resultsContainer.innerHTML = numCorrect + ' out of ' + questions.length;
-    }
-
-
-
-    submitButton.onclick = function() {
-      showResults(questions, quizContainer, resultsContainer);
-    }
-
-    showQuestions(questions, quizContainer);
-  }
-
-
-
-  var quizContainer = document.getElementById('quiz');
-  var resultsContainer = document.getElementById('results');
-  var submitButton = document.getElementById('submit');
-
-
-  generateQuiz(myQuestions, quizContainer, resultsContainer, submitButton);
+generateQuiz(myQuestions, quizContainer, resultsContainer, submitButton);
